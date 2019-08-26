@@ -1,6 +1,30 @@
 ## Advanced Lane Finding
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-![Lanes Image](./examples/example_output.jpg)
+
+![alt text](output_videos/project_video.gif "Result")
+
+This repository contains my development of the Project: Advanced Lane Lines proposed by the Udacity's Self-Driving Cars Nanodegree 
+
+This project goal is to develop a pipeline to identify the lane boundaries in a real scenario. 
+
+This is the advance version of the *Finding Lane Lines on the Road project* ([GitHub repository](https://github.com/rscova/CarND-LaneLines-P1))
+
+The pipeline is based in 6 steps:
+* 1. Camera Calibration
+* 2. Distortion Image Correction
+* 3. Color Spaces and Gradients Thresholds
+* 4. Perspective transform (Bird's Eye)
+* 5. Detect lane lines
+* 6. Determine the lane curvature
+
+To achieve that I have implemented two clases: `ImageProcessor()` and `LineFinder()`. And some naive functions.
+
+To understand this repository code, check first the `writeup.md` and `pipeline_step_by_step.ipynb`. These files have the pipeline explained step by step with the results of each part.
+
+---
+
+
+
 
 In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
 
