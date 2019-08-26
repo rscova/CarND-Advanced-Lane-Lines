@@ -6,7 +6,7 @@ This repository contains my development of the Project: Advanced Lane Lines prop
 
 
 <p align="center">
-  <img src="output_videos/project_video.gif" width="200" alt="project video" />
+  <img src="output_videos/project_video.gif" alt="project video" />
 </p>
 
 
