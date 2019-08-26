@@ -1,9 +1,14 @@
-## Advanced Lane Finding
+# CarND-Advanced-Lane-Finding
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-![alt text](output_videos/project_video.gif "Result")
 
 This repository contains my development of the Project: Advanced Lane Lines proposed by the Udacity's Self-Driving Cars Nanodegree 
+
+
+<p align="center">
+  <img src="output_videos/project_video.gif" width="200" alt="project video" />
+</p>
+
 
 This project goal is to develop a pipeline to identify the lane boundaries in a real scenario. 
 
