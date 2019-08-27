@@ -164,14 +164,14 @@ In the next frame of video you don't need to do a blind search again, but instea
 
 **6.1 Radius of Curvature**
 
-The radius of curvature <A HREF="https://www.intmath.com/applications-differentiation/8-radius-curvature.php" target="_blank">(awesome tutorial)</A> at any point $x$ of the function $x = f(y)$, where $f(y)$ is a second order polynomial, is given as follows:
+The radius of curvature <A HREF="https://www.intmath.com/applications-differentiation/8-radius-curvature.php" target="_blank">(awesome tutorial)</A> at any point $x$ of the function `x = f(y)`, where `f(y)` is a second order polynomial, is given as follows:
 
-$$R_{curve} = \frac{(1+(2Ay+B)^{2})^{3/2}}{|2A|}$$
+`R_{curve} = ((1+(2Ay+B)^2)^(3/2)) / |2A|`
 
 Where:
 
-$$ f'(y) = \frac{dx}{dy} = 2Ay + B  $$
-$$ f''(y) = \frac{d^2 x}{d^2 y} = 2A  $$
+` f'(y) = dx/dy = 2Ay + B`
+` f''(y) = d^2 x/d^2 y = 2A `
 
 
 **6.2 From Pixels to Real-World**
@@ -182,8 +182,8 @@ This involves measuring how long and wide the section of lane is that we're proj
 
 Let's say that the camera image has 720 relevant pixels in the y-dimension (remember, the image is perspective-transformed!), and we'll say roughly 700 relevant pixels in the x-dimension.
 
-Once the parameters of the parabole ($x = ay^2 + by + c$) are calculated, this formula can convert the coeficients from pixels to meters:
-$$ x = \frac {mx}{my^2} ay^2 + \frac{mx}{my}by + c$$
+Once the parameters of the parabole (`x = ay^2 + by + c`) are calculated, this formula can convert the coeficients from pixels to meters:
+`x = (mx/my^2) * ay^2 + (mx)/(my) * by + c`
 
 
 **6.3 Car lane center offset**
