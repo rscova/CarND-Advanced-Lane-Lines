@@ -194,3 +194,16 @@ As the camera is mounted at the center of the car, such that the lane center is 
 
 ![png](output_images/output_43_1.png)
 
+
+### Pipeline (video)
+Project video output:
+<p align="center">
+  <img src="output_images/project_video.gif" alt="project video" />
+</p>
+
+Challenge video output:
+<p align="center">
+  <img src="output_images/challenge_video.gif" alt="challenge video" />
+</p>
+
+
