@@ -207,3 +207,12 @@ Challenge video output:
 </p>
 
 
+## Limitations
+Even when it can works in this videos. Both of the roads have similar light conditions and road conditions. In harder light conditions and with heavy curves, my pipeline is not robust enough.
+
+## Possible Improvements 
+Deep learning is taking relevance in this field. With Convolutionals Neural Networks and Semantic Segmentation we can improve the detection of the road in several conditions, even at night. Or even using End-to-end learning to "teach" the car to drive itself.
+
+
+
+

@@ -32,6 +32,8 @@ To achieve that I have implemented two clases: `ImageProcessor()` and `LineFinde
 
 To understand this repository code, check first the `writeup.md` and `pipeline_step_by_step.ipynb`. These files have the pipeline explained step by step with the results of each part.
 
+
+One of the advantage of my pipeline from others is that can be used in real time. The pipeline can run at 18Hz (18 times per second). I tested it in a 6 years old laptop with an Intel i7 core.
 ---
 
 ## Overview
