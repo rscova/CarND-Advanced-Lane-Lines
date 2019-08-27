@@ -2,7 +2,7 @@
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 
-This repository contains my development of the [Project: Advanced Lane Lines](https://github.com/udacity/CarND-Advanced-Lane-Lines) proposed by the Udacity's Self-Driving Cars Nanodegree 
+This repository contains my development of the [Project: Advanced Lane Lines](https://github.com/udacity/CarND-Advanced-Lane-Lines) proposed by the Udacity's Self-Driving Cars Nanodegree. Here you can see how it works on a real scenario:
 
 
 <p align="center">
@@ -36,7 +36,7 @@ To understand this repository code, check first the `writeup.md` and `pipeline_s
 
 ### Project Structure
 * `test_images/` Directory with test images
-* `output_images/` All media to the writeup_media
+* `output_images/` Directory with the output images
 * `README.md` Repository's Readme file
 * `writeup.md` Project writeup, pipeline and methods explained
 * `pipeline_step_by_step.ipynb` Jupyter notebook with the pipeline explained with example images
