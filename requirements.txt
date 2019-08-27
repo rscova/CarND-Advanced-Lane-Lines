@@ -3,4 +3,5 @@ matplotlib
 opencv-python
 moviepy
 IPython
-
+glob3
+syspath

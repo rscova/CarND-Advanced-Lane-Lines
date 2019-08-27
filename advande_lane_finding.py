@@ -7,7 +7,6 @@ import math
 import os
 import glob
 import pickle
-import sympy as sym
 import sys
 
 from moviepy.editor import VideoFileClip
