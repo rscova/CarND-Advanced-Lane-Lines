@@ -6,7 +6,7 @@ This repository contains my development of the [Project: Advanced Lane Lines](ht
 
 
 <p align="center">
-  <img src="output_videos/project_video.gif" alt="project video" />
+  <img src="output_images/project_video.gif" alt="project video" />
 </p>
 
 
@@ -42,8 +42,11 @@ To understand this repository code, check first the `writeup.md` and `pipeline_s
 * `pipeline_step_by_step.ipynb` Jupyter notebook with the pipeline explained with example images
 * `advanced_lane_finding.ipnyb` Implementation of the pipeline in a Jupyter Notebooks
 * `advanced_lane_finding.py` Implementation of the pipeline in a Python File
-* `requirements.txt
+* `cal_data.p` Calibration pickle data
+* `requirements.txt` Install requirements file
 * `License` License File
+
+If you want to download the `test_videos/` and `camera_cal` folders with the videos and images to test the pipeline in videos and calibrate the camera from scratch you can do it from [Google Drive]()
 
 ### Objectives
 * Make a pipeline that finds lane lines on the road
