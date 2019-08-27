@@ -27,40 +27,40 @@ The pipeline is based in 6 steps and 2 extras:
 **1.1 Extract object points and image points for camera calibration**
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. 
 
-![png](output_8_1.png)
+![png](output_images/output_8_1.png)
 
 
 **1.2 Calibrate and calculate distortion coefficients**
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result:
 
-![png](output_10_1.png)
+![png](output_images/output_10_1.png)
 
 
 ### Step 2: Distortion correction
 To demonstrate this step,I will describe how I apply the distortion correction to a real road scenario and see the differences between the original image and the undistorted image
 
-![png](output_12_1.png)
+![png](output_images/output_12_1.png)
 
 
 ### Step 3: Color Spaces and Gradients
 
 **3.1 Color Spaces: RGB, HSV and HLS**
 
-The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect lines. S detects a little bit better the yellow and white marks in different iluminations, but get less information than R dark. Despite, R dark don't take acount the shadows, but it is work worst than S (sometimes) because detects more light. Here there are the channels that it try to increase the detection: 
+The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect lines. S detects a little bit better the yellow and white marks in different iluminations, but get less information than R dark. Despite, R dark don't take acount the shadows, but it is work worst than S (sometimes) because detects more light. Here there are the channels that it tried to increase the detection: 
 
-![png](output_16_1.png)
+![png](output_images/output_16_1.png)
 
-![png](output_16_2.png)
+![png](output_images/output_16_2.png)
 
-![png](output_16_3.png)
+![png](output_images/output_16_3.png)
 
-![png](output_16_4.png)
+![png](output_images/output_16_4.png)
 
-![png](output_16_5.png)
+![png](output_images/output_16_5.png)
 
-![png](output_16_6.png)
+![png](output_images/output_16_6.png)
 
-![png](output_16_7.png)
+![png](output_images/output_16_7.png)
 
 
 **3.2 Thresholds to Channels R(RGB),V(HSV),S(HLS)**
@@ -69,7 +69,7 @@ The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect
 
 
 
-![png](output_18_1.png)
+![png](output_images/output_18_1.png)
 
 
 **3.3 Gradients**
@@ -145,15 +145,15 @@ plt.title("Combined", fontsize=15)
 
 
 
-![png](output_20_1.png)
+![png](output_images/output_20_1.png)
 
 
 
-![png](output_20_2.png)
+![png](output_images/output_20_2.png)
 
 
 
-![png](output_20_3.png)
+![png](output_images/output_20_3.png)
 
 
 **3.4 Color and Gradient**
@@ -186,7 +186,7 @@ ax2.imshow(combined_binary, cmap='gray')
 
 
 
-![png](output_22_1.png)
+![png](output_images/output_22_1.png)
 
 
 ### Step 4: Perspective transform (Bird's Eye)
@@ -237,7 +237,7 @@ ax3.set_title('Warped Binary Image', fontsize=15)
 
 
 
-![png](output_24_1.png)
+![png](output_images/output_24_1.png)
 
 
 ### Step 5: Detect lane lines
@@ -278,7 +278,7 @@ plt.plot(histogram)
 
 
 
-![png](output_27_2.png)
+![png](output_images/output_27_2.png)
 
 
 Updated version using bins to agroup cols of pixels
@@ -308,7 +308,7 @@ print(leftx_base,rightx_base)
 
 
 
-![png](output_29_1.png)
+![png](output_images/output_29_1.png)
 
 
 **5.2 Sliding Windows and Fit a Polynomial**
@@ -431,7 +431,7 @@ plt.imshow(out_img)
 
 
 
-![png](output_31_2.png)
+![png](output_images/output_31_2.png)
 
 
 **5.3 Search from Prior**
@@ -521,7 +521,7 @@ plt.imshow(result)
 
 
 
-![png](output_33_1.png)
+![png](output_images/output_33_1.png)
 
 
 ### Step 6: Determine the lane curvature
@@ -652,5 +652,5 @@ plt.imshow(final)
 
 
 
-![png](output_43_1.png)
+![png](output_images/output_43_1.png)
 
