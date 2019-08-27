@@ -1,75 +1,335 @@
-# **Advanced Lane Finding on the Road WRITEUP** 
-
-## REFLECTION
-
-This document is the reflection of the development of the pipeline to find lane lines in a real road, in this case, in the Highway 280 of California.
+# Self-Driving Car Engineer Nanodegree
 
 
-This document is divided in 3 sections: the first one, is the **pipeline** whit its corresponding experiments. The second one, is the **limitations** of the pipeline. And the last one is the possible **improvements** of the pipeline.
+## Project 2: **Advanced Lane Finding** 
+***
+
+This project goal is to develop a pipeline to identify the lane boundaries in a real scenario. 
 
 This is the advance version of the Finding Lane Lines on the Road project ([GitHub repository](https://github.com/rscova/CarND-LaneLines-P1))
 
+The pipeline is based in 6 steps:
+* 1. Camera Calibration
+* 2. Distortion Image Correction
+* 3. Color Spaces and Gradients Thresholds
+* 4. Perspective transform (Bird's Eye)
+* 5. Detect lane lines
+* 6. Determine the lane curvature
 
-The pipeline is based in 6 steps and 2 extras:
-1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-2. Apply a distortion correction to raw images.
-3. Use color transforms, gradients, etc., to create a thresholded binary image.
-4. Apply a perspective transform to rectify binary image ("birds-eye view").
-5. Detect lane pixels and fit to find the lane boundary.
-6. Determine the curvature of the lane and vehicle position with respect to center.
-7. Warp the detected lane boundaries back onto the original image
-8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
+So, in this jupyter notebook I am going to develop the pipeline step by step for one image, showing the results of each step to make easier to understand why I choose each method.
 
+
+## Import Packages
+
+
+```python
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+import cv2
+import math, os, sys, glob
+import pickle
+
+from moviepy.editor import VideoFileClip
+from IPython.display import HTML
+
+%matplotlib inline
+```
 
 ## Advanced Lane Finding Step By Step
 
+**Test Images**
+
+
+
+```python
+path_in = "test_images/"
+path_out = "experiments/"
+# Make a list of test images
+img_names = os.listdir(path_in)
+
+# Make a list of calibration images
+cal_path = "camera_cal/"
+img_calibration_paths = glob.glob(cal_path + "*.jpg")
+
+print(img_names)
+print(img_calibration_paths)
+```
+
+    ['challenge_video', 'harder_challenge_video', 'straight_lines1.jpg', 'straight_lines2.jpg', 'test1.jpg', 'test2.jpg', 'test3.jpg', 'test4.jpg', 'test5.jpg', 'test6.jpg']
+    ['camera_cal/calibration1.jpg', 'camera_cal/calibration10.jpg', 'camera_cal/calibration11.jpg', 'camera_cal/calibration12.jpg', 'camera_cal/calibration13.jpg', 'camera_cal/calibration14.jpg', 'camera_cal/calibration15.jpg', 'camera_cal/calibration16.jpg', 'camera_cal/calibration17.jpg', 'camera_cal/calibration18.jpg', 'camera_cal/calibration19.jpg', 'camera_cal/calibration2.jpg', 'camera_cal/calibration20.jpg', 'camera_cal/calibration3.jpg', 'camera_cal/calibration4.jpg', 'camera_cal/calibration5.jpg', 'camera_cal/calibration6.jpg', 'camera_cal/calibration7.jpg', 'camera_cal/calibration8.jpg', 'camera_cal/calibration9.jpg']
+
+
 ### Step 1: Camera Calibration
+
 **1.1 Extract object points and image points for camera calibration**
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. 
-
-![png](output_images/output_8_1.png)
 
 
-**1.2 Calibrate and calculate distortion coefficients**
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result:
+```python
+# prepare object points
+nx = 9
+ny = 6
 
-![png](output_images/output_10_1.png)
+# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+objp = np.zeros((ny*nx,3), np.float32)
+objp[:,:2] = np.mgrid[0:nx, 0:ny].T.reshape(-1,2)
+
+# Arrays to store object points and image points from all the images.
+objpoints = [] # 3d points in real world space
+imgpoints = [] # 2d points in image plane.
+
+# Step through the list and search for chessboard corners
+plt.figure(figsize=(15,15))
+for idx,img_cal in enumerate(img_calibration_paths):
+    image = cv2.imread(img_cal)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Find the chessboard corners
+    ret, corners = cv2.findChessboardCorners(gray, (nx,ny), None)
+
+    # If found, add object points, image points
+    if ret == True:
+        objpoints.append(objp)
+        imgpoints.append(corners)
+
+        # Draw and display the corners
+        if img_cal == 'camera_cal/calibration2.jpg':
+            cv2.drawChessboardCorners(image, (nx,ny), corners, ret)
+            plt.figure(figsize=(7,7))
+            plt.imshow(image)
+            plt.title('Corners', fontsize=20)
+        
+```
+
+
+    <Figure size 1080x1080 with 0 Axes>
+
+
+
+![png](output_8_1.png)
+
+
+ **1.2 Calibrate and calculate distortion coefficients**
+
+
+```python
+image = cv2.imread("camera_cal/calibration1.jpg")
+img_size = (image.shape[1], image.shape[0])
+imshape = image.shape
+
+# Do camera calibration given object points and image points
+ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_size,None,None)
+
+undist = cv2.undistort(image, mtx, dist, None, mtx)
+
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(15,15))
+ax1.imshow(image)
+ax1.set_title('Original Image', fontsize=20)
+ax2.imshow(undist)
+ax2.set_title('Undistorted Image', fontsize=20)
+
+```
+
+
+
+
+    Text(0.5, 1.0, 'Undistorted Image')
+
+
+
+
+![png](output_10_1.png)
 
 
 ### Step 2: Distortion correction
-To demonstrate this step,I will describe how I apply the distortion correction to a real road scenario and see the differences between the original image and the undistorted image
 
-![png](output_images/output_12_1.png)
+
+```python
+# Read Image
+image = cv2.imread("test_images/straight_lines1.jpg")
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+# Remove distortion
+undist = cv2.undistort(image, mtx, dist, None, mtx) 
+
+#Find differences 
+difference = cv2.subtract(image, undist)
+
+# Draw and display
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(image)
+ax1.set_title('Original Image', fontsize=20)
+ax2.imshow(undist)
+ax2.set_title('Undistorted Image', fontsize=20)
+ax3.imshow(difference)
+ax3.set_title('Differences', fontsize=20)
+    
+```
+
+
+
+
+    Text(0.5, 1.0, 'Differences')
+
+
+
+
+![png](output_12_1.png)
 
 
 ### Step 3: Color Spaces and Gradients
 
 **3.1 Color Spaces: RGB, HSV and HLS**
 
-The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect lines. S detects a little bit better the yellow and white marks in different iluminations, but get less information than R dark. Despite, R dark don't take acount the shadows, but it is work worst than S (sometimes) because detects more light. Here there are the channels that it tried to increase the detection: 
+The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect lines. 
 
-![png](output_images/output_16_1.png)
+S detects a little bit better the yellow and white marks in different iluminations, but get less information than R dark.
 
-![png](output_images/output_16_2.png)
+Despite, R dark don't take acount the shadows, but it is work worst than S (sometimes) because detects more light.
 
-![png](output_images/output_16_3.png)
 
-![png](output_images/output_16_4.png)
 
-![png](output_images/output_16_5.png)
+```python
+def darkenImage(image,gamma=1.0):
+    gamma_inverse = 1.0 / gamma
+    lut_table = np.array([((i / 255.0) ** gamma_inverse) * 255 for i in np.arange(0, 256)]).astype("uint8")
+    return cv2.LUT(image, lut_table)
 
-![png](output_images/output_16_6.png)
+# Change color space
+# Split in to channels
+r, g, b = cv2.split(undist)
+dark_r = darkenImage(r, 0.7)
+h_hsv, s_hsv, v_hsv = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2HSV))
+h_hls, l_hls, s_hls = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2HLS))
+l_lab, a_lab, b_lab = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2LAB))
+l_luv, u_luv, v_luv = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2LUV))
+y_ycrcb, cr_ycrcb, cb_ycrcb = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2YCrCb))
 
-![png](output_images/output_16_7.png)
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(dark_r,cmap='gray')
+ax1.set_title('Darkened R', fontsize=15)
+ax2.imshow(cv2.equalizeHist(r, 0.5),cmap='gray')
+ax2.set_title('Equalized Histogram R', fontsize=15)
+ax3.imshow(cv2.equalizeHist(s_hls, 0.5),cmap='gray')
+ax3.set_title('Equalized Histogram S', fontsize=15)
+
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(r,cmap='gray')
+ax1.set_title('R', fontsize=15)
+ax2.imshow(g,cmap='gray')
+ax2.set_title('G', fontsize=15)
+ax3.imshow(b,cmap='gray')
+ax3.set_title('B', fontsize=15)
+
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(h_hsv,cmap='gray')
+ax1.set_title('H', fontsize=15)
+ax2.imshow(s_hsv,cmap='gray')
+ax2.set_title('S', fontsize=15)
+ax3.imshow(v_hsv,cmap='gray')
+ax3.set_title('V', fontsize=15)
+
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(h_hls,cmap='gray')
+ax1.set_title('H', fontsize=15)
+ax2.imshow(l_hls,cmap='gray')
+ax2.set_title('L', fontsize=15)
+ax3.imshow(s_hls,cmap='gray')
+ax3.set_title('S', fontsize=15)
+
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(l_lab,cmap='gray')
+ax1.set_title('L', fontsize=15)
+ax2.imshow(a_lab,cmap='gray')
+ax2.set_title('A', fontsize=15)
+ax3.imshow(b_lab,cmap='gray')
+ax3.set_title('B', fontsize=15)
+
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(l_luv,cmap='gray')
+ax1.set_title('L', fontsize=15)
+ax2.imshow(u_luv,cmap='gray')
+ax2.set_title('U', fontsize=15)
+ax3.imshow(v_luv,cmap='gray')
+ax3.set_title('V', fontsize=15)
+
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(y_ycrcb,cmap='gray')
+ax1.set_title('Y', fontsize=15)
+ax2.imshow(cr_ycrcb,cmap='gray')
+ax2.set_title('Cr', fontsize=15)
+ax3.imshow(cb_ycrcb,cmap='gray')
+ax3.set_title('Cb', fontsize=15)
+    
+```
+
+
+
+
+    Text(0.5, 1.0, 'Cb')
+
+
+
+
+![png](output_16_1.png)
+
+
+
+![png](output_16_2.png)
+
+
+
+![png](output_16_3.png)
+
+
+
+![png](output_16_4.png)
+
+
+
+![png](output_16_5.png)
+
+
+
+![png](output_16_6.png)
+
+
+
+![png](output_16_7.png)
 
 
 **3.2 Thresholds to Channels R(RGB),V(HSV),S(HLS)**
 
 
+```python
+#thresholds
+r_thres = (100, 255)
+s_thres = (100, 255)
+
+#Binary images
+ret, binary_r = cv2.threshold(dark_r,100,1,cv2.THRESH_BINARY)
+ret, binary_s = cv2.threshold(s_hls,100,1,cv2.THRESH_BINARY)
+ret, s_binary_auto = cv2.threshold(s_hls,100,1,cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)        
+
+f, (ax1, ax2,ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(binary_r,cmap='gray')
+ax1.set_title('R Normal', fontsize=15)
+ax2.imshow(binary_s,cmap='gray')
+ax2.set_title('S Normal', fontsize=15)
+ax3.imshow(s_binary_auto,cmap='gray')
+ax3.set_title('S Triangle', fontsize=15)
+
+```
 
 
 
-![png](output_images/output_18_1.png)
+
+    Text(0.5, 1.0, 'S Triangle')
+
+
+
+
+![png](output_18_1.png)
 
 
 **3.3 Gradients**
@@ -145,15 +405,15 @@ plt.title("Combined", fontsize=15)
 
 
 
-![png](output_images/output_20_1.png)
+![png](output_20_1.png)
 
 
 
-![png](output_images/output_20_2.png)
+![png](output_20_2.png)
 
 
 
-![png](output_images/output_20_3.png)
+![png](output_20_3.png)
 
 
 **3.4 Color and Gradient**
@@ -166,13 +426,12 @@ color_binary = np.dstack((binary_r, binary_s, gradx)) * 255
 
 # Combine the two binary thresholds
 combined_binary = np.zeros_like(binary_r)
-combined_binary[((binary_r == 1) & ((binary_s == 1) | (gradx == 1)))] = 1
+combined_binary[((binary_r == 1) & ((binary_s == 1) | (s_binary_auto == 1) | (gradx == 1)))] = 1
 
 # Plotting thresholded images
 f, (ax1, ax2) = plt.subplots(1, 2, figsize=(15,15))
 ax1.set_title('Stacked thresholds')
 ax1.imshow(color_binary)
-
 ax2.set_title('Combined S channel and gradient thresholds')
 ax2.imshow(combined_binary, cmap='gray')
 
@@ -181,12 +440,12 @@ ax2.imshow(combined_binary, cmap='gray')
 
 
 
-    <matplotlib.image.AxesImage at 0x7fc98f9d0828>
+    <matplotlib.image.AxesImage at 0x7fc99c86dc18>
 
 
 
 
-![png](output_images/output_22_1.png)
+![png](output_22_1.png)
 
 
 ### Step 4: Perspective transform (Bird's Eye)
@@ -237,7 +496,7 @@ ax3.set_title('Warped Binary Image', fontsize=15)
 
 
 
-![png](output_images/output_24_1.png)
+![png](output_24_1.png)
 
 
 ### Step 5: Detect lane lines
@@ -267,18 +526,18 @@ plt.plot(histogram)
 
 ```
 
-    328 945
+    329 945
 
 
 
 
 
-    [<matplotlib.lines.Line2D at 0x7fc99e904f98>]
+    [<matplotlib.lines.Line2D at 0x7fc98df24e48>]
 
 
 
 
-![png](output_images/output_27_2.png)
+![png](output_27_2.png)
 
 
 Updated version using bins to agroup cols of pixels
@@ -308,7 +567,7 @@ print(leftx_base,rightx_base)
 
 
 
-![png](output_images/output_29_1.png)
+![png](output_29_1.png)
 
 
 **5.2 Sliding Windows and Fit a Polynomial**
@@ -426,12 +685,12 @@ plt.imshow(out_img)
 
 
 
-    <matplotlib.image.AxesImage at 0x7fc98fcb0400>
+    <matplotlib.image.AxesImage at 0x7fc98de11b00>
 
 
 
 
-![png](output_images/output_31_2.png)
+![png](output_31_2.png)
 
 
 **5.3 Search from Prior**
@@ -516,12 +775,12 @@ plt.imshow(result)
 
 
 
-    <matplotlib.image.AxesImage at 0x7fc98fd285f8>
+    <matplotlib.image.AxesImage at 0x7fc98dd84358>
 
 
 
 
-![png](output_images/output_33_1.png)
+![png](output_33_1.png)
 
 
 ### Step 6: Determine the lane curvature
@@ -552,7 +811,7 @@ right_curverad = ((1+(2*right_fit[0]*y_eval + right_fit[1])**2)**(3/2)) / np.abs
 print(left_curverad, right_curverad)
 ```
 
-    45668.33472657573 27554.843613629633
+    38708.19006022488 27317.184963388565
 
 
 **6.2 From Pixels to Real-World**
@@ -590,7 +849,7 @@ curvature_string = "Radius of curvature: %.2f km" % (abs(mean_curvature)/1000.0)
 print(curvature_string)
 ```
 
-    Radius of curvature: 12.01 km
+    Radius of curvature: 10.83 km
 
 
 **6.3 Car lane center offset**
@@ -604,7 +863,7 @@ offset_string = "Center offset: %.2f m" % center_offset_mtrs
 print(offset_string)
 ```
 
-    Center offset: 0.06 m
+    Center offset: 0.01 m
 
 
 ### Plot Everythig together
@@ -647,10 +906,15 @@ plt.imshow(final)
 
 
 
-    <matplotlib.image.AxesImage at 0x7f5546229e10>
+    <matplotlib.image.AxesImage at 0x7fc98dd606d8>
 
 
 
 
-![png](output_images/output_43_1.png)
+![png](output_43_1.png)
 
+
+
+```python
+
+```

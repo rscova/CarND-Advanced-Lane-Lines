@@ -27,17 +27,17 @@ The pipeline is based in 6 steps and 2 extras:
 **1.1 Extract object points and image points for camera calibration**
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. 
 
-![png](output_8_1.png)
+![png](output_images/output_8_1.png)
 
 
 **1.2 Calibrate and calculate distortion coefficients**
-![png](output_10_1.png)
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result:
 
+![png](output_images/output_10_1.png)
+
+
 ### Step 2: Distortion correction
-
-
-
+To demonstrate this step,I will describe how I apply the distortion correction to a real road scenario and see the differences between the original image and the undistorted image:
 
 ![png](output_images/output_12_1.png)
 
@@ -46,147 +46,27 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 **3.1 Color Spaces: RGB, HSV and HLS**
 
-The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect lines. 
-
-S detects a little bit better the yellow and white marks in different iluminations, but get less information than R dark.
-
-Despite, R dark don't take acount the shadows, but it is work worst than S (sometimes) because detects more light.
-
-
-
-```python
-def darkenImage(image,gamma=1.0):
-    gamma_inverse = 1.0 / gamma
-    lut_table = np.array([((i / 255.0) ** gamma_inverse) * 255 for i in np.arange(0, 256)]).astype("uint8")
-    return cv2.LUT(image, lut_table)
-
-# Change color space
-# Split in to channels
-r, g, b = cv2.split(undist)
-dark_r = darkenImage(r, 0.7)
-h_hsv, s_hsv, v_hsv = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2HSV))
-h_hls, l_hls, s_hls = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2HLS))
-l_lab, a_lab, b_lab = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2LAB))
-l_luv, u_luv, v_luv = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2LUV))
-y_ycrcb, cr_ycrcb, cb_ycrcb = cv2.split(cv2.cvtColor(undist, cv2.COLOR_RGB2YCrCb))
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(dark_r,cmap='gray')
-ax1.set_title('Darkened R', fontsize=15)
-ax2.imshow(cv2.equalizeHist(r, 0.5),cmap='gray')
-ax2.set_title('Equalized Histogram R', fontsize=15)
-ax3.imshow(cv2.equalizeHist(s_hls, 0.5),cmap='gray')
-ax3.set_title('Equalized Histogram S', fontsize=15)
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(r,cmap='gray')
-ax1.set_title('R', fontsize=15)
-ax2.imshow(g,cmap='gray')
-ax2.set_title('G', fontsize=15)
-ax3.imshow(b,cmap='gray')
-ax3.set_title('B', fontsize=15)
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(h_hsv,cmap='gray')
-ax1.set_title('H', fontsize=15)
-ax2.imshow(s_hsv,cmap='gray')
-ax2.set_title('S', fontsize=15)
-ax3.imshow(v_hsv,cmap='gray')
-ax3.set_title('V', fontsize=15)
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(h_hls,cmap='gray')
-ax1.set_title('H', fontsize=15)
-ax2.imshow(l_hls,cmap='gray')
-ax2.set_title('L', fontsize=15)
-ax3.imshow(s_hls,cmap='gray')
-ax3.set_title('S', fontsize=15)
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(l_lab,cmap='gray')
-ax1.set_title('L', fontsize=15)
-ax2.imshow(a_lab,cmap='gray')
-ax2.set_title('A', fontsize=15)
-ax3.imshow(b_lab,cmap='gray')
-ax3.set_title('B', fontsize=15)
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(l_luv,cmap='gray')
-ax1.set_title('L', fontsize=15)
-ax2.imshow(u_luv,cmap='gray')
-ax2.set_title('U', fontsize=15)
-ax3.imshow(v_luv,cmap='gray')
-ax3.set_title('V', fontsize=15)
-
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,15))
-ax1.imshow(y_ycrcb,cmap='gray')
-ax1.set_title('Y', fontsize=15)
-ax2.imshow(cr_ycrcb,cmap='gray')
-ax2.set_title('Cr', fontsize=15)
-ax3.imshow(cb_ycrcb,cmap='gray')
-ax3.set_title('Cb', fontsize=15)
-    
-```
-
-
-
-
-    Text(0.5, 1.0, 'Cb')
-
-
-
+The channel S(HLS) and R(RGB) darkened, are the most suitable channels to detect lines. S detects a little bit better the yellow and white marks in different iluminations, but get less information than R dark. Despite, R dark don't take acount the shadows, but it is work worst than S (sometimes) because detects more light. Here there are the channels that it tried to increase the detection: 
 
 ![png](output_images/output_16_1.png)
 
-
-
 ![png](output_images/output_16_2.png)
-
-
 
 ![png](output_images/output_16_3.png)
 
-
-
 ![png](output_images/output_16_4.png)
-
-
 
 ![png](output_images/output_16_5.png)
 
-
-
 ![png](output_images/output_16_6.png)
-
-
 
 ![png](output_images/output_16_7.png)
 
 
-**3.2 Thresholds to Channels R(RGB),V(HSV),S(HLS)**
+**3.2 Thresholds to Channels R(RGB),S(HLS)**
+A simple binarization is enough for the R darked and S channels. But, for a better detection in different illumination conditions I have used the `cv2.THRESH_TRIANGLE` method. So, the best threshold that I found are 100:
 
-
-```python
-#thresholds
-r_thres = (100, 255)
-s_thres = (100, 255)
-
-#Binary images
-ret, binary_r = cv2.threshold(dark_r,100,1,cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-ret, binary_s = cv2.threshold(s_hls,100,1,cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)
-
-
-if DRAW_IMAGES:
-    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24,9))
-    ax1.imshow(binary_r,cmap='gray')
-    ax1.set_title('R ', fontsize=15)
-    ax2.imshow(binary_s,cmap='gray')
-    ax2.set_title('S', fontsize=15)
-
-```
-
-
-![png](output_images/output_18_0.png)
+![png](output_images/output_18_1.png)
 
 
 **3.3 Gradients**
@@ -247,7 +127,7 @@ ax1.set_title('Magnitude', fontsize=15)
 ax2.imshow(dir_binary,cmap='gray')
 ax2.set_title('Directions', fontsize=15)
 
-plt.figure()
+plt.figure(figsize=(7,7))
 plt.imshow(combined,cmap='gray')
 plt.title("Combined", fontsize=15)
 
@@ -286,7 +166,7 @@ combined_binary = np.zeros_like(binary_r)
 combined_binary[((binary_r == 1) & ((binary_s == 1) | (gradx == 1)))] = 1
 
 # Plotting thresholded images
-f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,10))
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(15,15))
 ax1.set_title('Stacked thresholds')
 ax1.imshow(color_binary)
 
@@ -298,7 +178,7 @@ ax2.imshow(combined_binary, cmap='gray')
 
 
 
-    <matplotlib.image.AxesImage at 0x7f5544822780>
+    <matplotlib.image.AxesImage at 0x7fc98f9d0828>
 
 
 
@@ -324,7 +204,10 @@ M = cv2.getPerspectiveTransform(np.float32(src_points), np.float32(dst_points))
 
 # Warp the image 
 warped = cv2.warpPerspective(undist, M, img_size)
+rgb_warp = cv2.cvtColor(warped, cv2.COLOR_RGB2BGR)
+cv2.imwrite("prueba.jpg",rgb_warp)
 warped_binary = cv2.warpPerspective(combined_binary, M, img_size)
+cv2.imwrite("prueba2.jpg",warped_binary*255)
 
 warped_roi = warped.copy()
 cv2.polylines(warped_roi,np.array([dst_points],dtype=np.int32),True,(255,0,0),4)
@@ -333,19 +216,25 @@ warped_binary = cv2.morphologyEx(warped_binary, cv2.MORPH_OPEN, np.ones((3,3)))
 warped_binary = cv2.morphologyEx(warped_binary, cv2.MORPH_TOPHAT, np.ones((2,65)))
 
 
-if DRAW_IMAGES:
-    f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(20,20))
-    ax1.imshow(undist_roi)
-    ax1.set_title('Undistorted ROI', fontsize=15)
-    ax2.imshow(warped_roi)
-    ax2.set_title('Warped Image', fontsize=15)
-    ax3.imshow(warped_binary, cmap='gray')
-    ax3.set_title('Warped Binary Image', fontsize=15)
+f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,25))
+ax1.imshow(undist_roi)
+ax1.set_title('Undistorted ROI', fontsize=15)
+ax2.imshow(warped_roi)
+ax2.set_title('Warped Image', fontsize=15)
+ax3.imshow(warped_binary, cmap='gray')
+ax3.set_title('Warped Binary Image', fontsize=15)
 
 ```
 
 
-![png](output_images/output_24_0.png)
+
+
+    Text(0.5, 1.0, 'Warped Binary Image')
+
+
+
+
+![png](output_images/output_24_1.png)
 
 
 ### Step 5: Detect lane lines
@@ -381,7 +270,7 @@ plt.plot(histogram)
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f5544e90d68>]
+    [<matplotlib.lines.Line2D at 0x7fc99e904f98>]
 
 
 
@@ -528,13 +417,13 @@ plt.plot(right_fitx, ploty, color='yellow')
 plt.imshow(out_img)
 ```
 
-    328 945
+    340 940
 
 
 
 
 
-    <matplotlib.image.AxesImage at 0x7f5544e62748>
+    <matplotlib.image.AxesImage at 0x7fc98fcb0400>
 
 
 
@@ -624,7 +513,7 @@ plt.imshow(result)
 
 
 
-    <matplotlib.image.AxesImage at 0x7f5544e98860>
+    <matplotlib.image.AxesImage at 0x7fc98fd285f8>
 
 
 
