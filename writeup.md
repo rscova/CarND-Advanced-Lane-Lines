@@ -1,153 +1,40 @@
-# Self-Driving Car Engineer Nanodegree
+# **Advanced Lane Finding on the Road WRITEUP** 
+
+## REFLECTION
+
+This document is the reflection of the development of the pipeline to find lane lines in a real road, in this case, in the Highway 280 of California.
 
 
-## Project 2: **Advanced Lane Finding** 
-***
-
-This project goal is to develop a pipeline to identify the lane boundaries in a real scenario. 
+This document is divided in 3 sections: the first one, is the **pipeline** whit its corresponding experiments. The second one, is the **limitations** of the pipeline. And the last one is the possible **improvements** of the pipeline.
 
 This is the advance version of the Finding Lane Lines on the Road project ([GitHub repository](https://github.com/rscova/CarND-LaneLines-P1))
 
-The pipeline is based in 6 steps:
-* 1. Camera Calibration
-* 2. Distortion Image Correction
-* 3. Color Spaces and Gradients Thresholds
-* 4. Perspective transform (Bird's Eye)
-* 5. Detect lane lines
-* 6. Determine the lane curvature
 
-So, in this jupyter notebook I am going to develop the pipeline step by step for one image, showing the results of each step to make easier to understand why I choose each method.
+The pipeline is based in 6 steps and 2 extras:
+1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
+2. Apply a distortion correction to raw images.
+3. Use color transforms, gradients, etc., to create a thresholded binary image.
+4. Apply a perspective transform to rectify binary image ("birds-eye view").
+5. Detect lane pixels and fit to find the lane boundary.
+6. Determine the curvature of the lane and vehicle position with respect to center.
+7. Warp the detected lane boundaries back onto the original image
+8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-
-## Import Packages
-
-
-```python
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import numpy as np
-import cv2
-import math, os, sys, glob
-import pickle
-
-from moviepy.editor import VideoFileClip
-from IPython.display import HTML
-
-%matplotlib inline
-```
 
 ## Advanced Lane Finding Step By Step
 
-**Test Images**
-
-
-
-```python
-path_in = "test_images/"
-path_out = "experiments/"
-# Make a list of test images
-img_names = os.listdir(path_in)
-
-# Make a list of calibration images
-cal_path = "camera_cal/"
-img_calibration_paths = glob.glob(cal_path + "*.jpg")
-
-print(img_names)
-print(img_calibration_paths)
-```
-
-    ['challenge_video', 'harder_challenge_video', 'straight_lines1.jpg', 'straight_lines2.jpg', 'test1.jpg', 'test2.jpg', 'test3.jpg', 'test4.jpg', 'test5.jpg', 'test6.jpg']
-    ['camera_cal/calibration1.jpg', 'camera_cal/calibration10.jpg', 'camera_cal/calibration11.jpg', 'camera_cal/calibration12.jpg', 'camera_cal/calibration13.jpg', 'camera_cal/calibration14.jpg', 'camera_cal/calibration15.jpg', 'camera_cal/calibration16.jpg', 'camera_cal/calibration17.jpg', 'camera_cal/calibration18.jpg', 'camera_cal/calibration19.jpg', 'camera_cal/calibration2.jpg', 'camera_cal/calibration20.jpg', 'camera_cal/calibration3.jpg', 'camera_cal/calibration4.jpg', 'camera_cal/calibration5.jpg', 'camera_cal/calibration6.jpg', 'camera_cal/calibration7.jpg', 'camera_cal/calibration8.jpg', 'camera_cal/calibration9.jpg']
-
-
 ### Step 1: Camera Calibration
-
 **1.1 Extract object points and image points for camera calibration**
+I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. 
+
+![png](output_8_1.png)
 
 
-```python
-# prepare object points
-nx = 9
-ny = 6
-
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((ny*nx,3), np.float32)
-objp[:,:2] = np.mgrid[0:nx, 0:ny].T.reshape(-1,2)
-
-# Arrays to store object points and image points from all the images.
-objpoints = [] # 3d points in real world space
-imgpoints = [] # 2d points in image plane.
-
-# Step through the list and search for chessboard corners
-plt.figure(figsize=(15,15))
-for idx,img_cal in enumerate(img_calibration_paths):
-    image = cv2.imread(img_cal)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Find the chessboard corners
-    ret, corners = cv2.findChessboardCorners(gray, (nx,ny), None)
-
-    # If found, add object points, image points
-    if ret == True:
-        objpoints.append(objp)
-        imgpoints.append(corners)
-
-        # Draw and display the corners
-        if img_cal == 'camera_cal/calibration2.jpg':
-            cv2.drawChessboardCorners(image, (nx,ny), corners, ret)
-            #plt.subplot(5,4,idx)
-            #plt.title(img_cal[:-4])
-            plt.imshow(image)   
-        
-```
-
-
-![png](output_images/output_8_0.png)
-
-
- **1.2 Calibrate and calculate distortion coefficients**
-
-
-```python
-image = cv2.imread(img_calibration_paths[10])
-img_size = (image.shape[1], image.shape[0])
-imshape = image.shape
-
-# Do camera calibration given object points and image points
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_size,None,None)
-
-
-```
+**1.2 Calibrate and calculate distortion coefficients**
+![png](output_10_1.png)
+I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result:
 
 ### Step 2: Distortion correction
-
-
-```python
-# Read Image
-image = cv2.imread("test_images/straight_lines1.jpg")
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-# Remove distortion
-undist = cv2.undistort(image, mtx, dist, None, mtx) 
-
-#Find differences 
-difference = cv2.subtract(image, undist)
-
-# Draw and display
-f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(30,20))
-ax1.imshow(image)
-ax1.set_title('Original Image', fontsize=20)
-ax2.imshow(undist)
-ax2.set_title('Undistorted Image', fontsize=20)
-ax3.imshow(difference)
-ax3.set_title('Differences', fontsize=20)
-    
-```
-
-
-
-
-    Text(0.5, 1.0, 'Differences')
 
 
 
