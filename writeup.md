@@ -102,7 +102,7 @@ for idx,img_cal in enumerate(img_calibration_paths):
 ```
 
 
-![png](output_8_0.png)
+![png](output_images/output_8_0.png)
 
 
  **1.2 Calibrate and calculate distortion coefficients**
@@ -152,7 +152,7 @@ ax3.set_title('Differences', fontsize=20)
 
 
 
-![png](output_12_1.png)
+![png](output_images/output_12_1.png)
 
 
 ### Step 3: Color Spaces and Gradients
@@ -249,31 +249,31 @@ ax3.set_title('Cb', fontsize=15)
 
 
 
-![png](output_16_1.png)
+![png](output_images/output_16_1.png)
 
 
 
-![png](output_16_2.png)
+![png](output_images/output_16_2.png)
 
 
 
-![png](output_16_3.png)
+![png](output_images/output_16_3.png)
 
 
 
-![png](output_16_4.png)
+![png](output_images/output_16_4.png)
 
 
 
-![png](output_16_5.png)
+![png](output_images/output_16_5.png)
 
 
 
-![png](output_16_6.png)
+![png](output_images/output_16_6.png)
 
 
 
-![png](output_16_7.png)
+![png](output_images/output_16_7.png)
 
 
 **3.2 Thresholds to Channels R(RGB),V(HSV),S(HLS)**
@@ -299,7 +299,7 @@ if DRAW_IMAGES:
 ```
 
 
-![png](output_18_0.png)
+![png](output_images/output_18_0.png)
 
 
 **3.3 Gradients**
@@ -375,15 +375,15 @@ plt.title("Combined", fontsize=15)
 
 
 
-![png](output_20_1.png)
+![png](output_images/output_20_1.png)
 
 
 
-![png](output_20_2.png)
+![png](output_images/output_20_2.png)
 
 
 
-![png](output_20_3.png)
+![png](output_images/output_20_3.png)
 
 
 **3.4 Color and Gradient**
@@ -416,7 +416,7 @@ ax2.imshow(combined_binary, cmap='gray')
 
 
 
-![png](output_22_1.png)
+![png](output_images/output_22_1.png)
 
 
 ### Step 4: Perspective transform (Bird's Eye)
@@ -458,7 +458,7 @@ if DRAW_IMAGES:
 ```
 
 
-![png](output_24_0.png)
+![png](output_images/output_24_0.png)
 
 
 ### Step 5: Detect lane lines
@@ -499,7 +499,7 @@ plt.plot(histogram)
 
 
 
-![png](output_27_2.png)
+![png](output_images/output_27_2.png)
 
 
 Updated version using bins to agroup cols of pixels
@@ -529,7 +529,7 @@ print(leftx_base,rightx_base)
 
 
 
-![png](output_29_1.png)
+![png](output_images/output_29_1.png)
 
 
 **5.2 Sliding Windows and Fit a Polynomial**
@@ -652,7 +652,7 @@ plt.imshow(out_img)
 
 
 
-![png](output_31_2.png)
+![png](output_images/output_31_2.png)
 
 
 **5.3 Search from Prior**
@@ -742,7 +742,7 @@ plt.imshow(result)
 
 
 
-![png](output_33_1.png)
+![png](output_images/output_33_1.png)
 
 
 ### Step 6: Determine the lane curvature
@@ -873,5 +873,5 @@ plt.imshow(final)
 
 
 
-![png](output_43_1.png)
+![png](output_images/output_43_1.png)
 
