@@ -23,7 +23,9 @@ The pipeline is based in 6 steps:
 6. Determine the lane curvature: Determine the curvature of the lane and vehicle position with respect to center.
 
 Extra:
+
 7. Warp the detected lane boundaries back onto the original image
+
 8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
 To achieve that I have implemented two clases: `ImageProcessor()` and `LineFinder()`. And some naive functions.
