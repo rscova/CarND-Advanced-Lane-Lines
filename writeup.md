@@ -21,7 +21,9 @@ The pipeline is based in 6 steps and 2 extras:
 8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
 
-For full implementation details check [pipeline_step_by_step.ipynb](https://github.com/rscova/CarND-Advanced-Lane-Lines/blob/master/pipeline_step_by_step.ipynb)
+For full implementation details check [pipeline_step_by_step.ipynb](https://github.com/rscova/CarND-Advanced-Lane-Lines/blob/master/pipeline_step_by_step.ipynb) (this implementation is just a demo to see the results only in images)
+
+To see the complet *pipeline* to test it in videos, check [advande_lane_finding.py](https://github.com/rscova/CarND-Advanced-Lane-Lines/blob/master/advande_lane_finding.py) or [advande_lane_finding.ipynb](https://github.com/rscova/CarND-Advanced-Lane-Lines/blob/master/advande_lane_finding.ipynb)
 
 ## Advanced Lane Finding Step By Step
 

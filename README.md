@@ -46,9 +46,9 @@ One of the advantage of my pipeline from others is that can be used in real time
 * `output_videos/` Directory with the output videos
 * `README.md` Repository's Readme file
 * `writeup.md` Project writeup, pipeline and methods explained
-* `pipeline_step_by_step.ipynb` Jupyter notebook with the pipeline explained with example images
-* `advanced_lane_finding.ipnyb` Implementation of the pipeline in a Jupyter Notebooks
-* `advanced_lane_finding.py` Implementation of the pipeline in a Python File
+* `pipeline_step_by_step.ipynb` Jupyter notebook with the pipeline explained with example images (just for images)
+* `advanced_lane_finding.ipnyb` Implementation of the pipeline in a Jupyter Notebooks (for videos and real scenarios)
+* `advanced_lane_finding.py` Implementation of the pipeline in a Python File (for videos and real scenarios)
 * `cal_data.p` Calibration pickle data
 * `requirements.txt` Install requirements file
 * `License` License File
