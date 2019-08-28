@@ -43,6 +43,7 @@ One of the advantage of my pipeline from others is that can be used in real time
 ### Project Structure
 * `test_images/` Directory with test images
 * `output_images/` Directory with the output images
+* `output_videos/` Directory with the output videos
 * `README.md` Repository's Readme file
 * `writeup.md` Project writeup, pipeline and methods explained
 * `pipeline_step_by_step.ipynb` Jupyter notebook with the pipeline explained with example images
